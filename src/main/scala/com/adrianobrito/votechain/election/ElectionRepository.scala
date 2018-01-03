@@ -1,6 +1,6 @@
 package com.adrianobrito.votechain.election
 
-import java.io.{File, PrintWriter, Writer}
+import java.io.{PrintWriter, Writer}
 
 import com.adrianobrito.votechain.constants.ElectionsConstants
 
