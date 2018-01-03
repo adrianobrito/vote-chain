@@ -1,21 +1,27 @@
 package com.adrianobrito.votechain
 
-import com.adrianobrito.votechain.election.Vote
+import com.adrianobrito.votechain.election.{Election, Candidate, Vote}
 import com.adrianobrito.votechain.fixtures.VotechainFixtures
-import com.adrianobrito.votechain.peers.Peer
+import com.adrianobrito.votechain.p2p.Peer
+import play.api.libs.json.Json
 
 class VotechainServiceSpec extends UnitSpec {
 
-  "VotechainService" should "perform election startup" in {
-    val election = VotechainFixtures.electionJson
-    VotechainService.up(election)
+  implicit val candidateFormat = Json.format[Candidate]
+  implicit val electionFormat = Json.format[Election]
 
-    VotechainService.isUp shouldBe true
-    VotechainService.election shouldBe equal(election)
+  "VotechainService" should "perform election startup" in {
+    val electionJson = VotechainFixtures.electionJson
+
+    Votechain.up(electionJson)
+    val election : Election = Json.fromJson[Election](Json.parse(electionJson)).get
+
+    Votechain.isUp shouldBe true
+    Votechain.election shouldBe equal(election)
   }
 
   it should "discovery new peers" in {
-    val peers : Set[Peer] = VotechainService.fetchPeers
+    val peers : Set[Peer] = Votechain.fetchPeers
 
     peers.size should be <= 100
   }
@@ -23,8 +29,8 @@ class VotechainServiceSpec extends UnitSpec {
   it should "perform peer registry" in {
     val peer : Peer = Peer("127.0.0.1", 8080)
 
-    VotechainService.registerPeer(peer)
-    val peers : Set[Peer] = VotechainService.fetchPeers
+    Votechain.registerPeer(peer)
+    val peers : Set[Peer] = Votechain.fetchPeers
 
     peers should contain (peer)
   }
@@ -32,21 +38,21 @@ class VotechainServiceSpec extends UnitSpec {
   it should "mine a new vote" in {
     val vote = Vote("6768687", 45)
 
-    VotechainService.mine(vote)
+    Votechain.mine(vote)
 
-    VotechainService.votes should contain (vote)
+    Votechain.votes should contain (vote)
   }
 
   it should "perform election shutdown" in {
     val supposedCode = "END"
 
-    VotechainService.down(supposedCode)
+    Votechain.down(supposedCode)
 
-    VotechainService.isUp shouldBe false
+    Votechain.isUp shouldBe false
   }
 
   it should "get the current result" in {
-    val result = VotechainService.currentResult
+    val result = Votechain.currentResult
 
     result should not be (null)
   }

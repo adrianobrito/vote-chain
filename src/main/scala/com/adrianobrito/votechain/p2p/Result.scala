@@ -1,4 +1,4 @@
-package com.adrianobrito.votechain.peers
+package com.adrianobrito.votechain.p2p
 
 import com.adrianobrito.votechain.election.Vote
 
